@@ -1,0 +1,969 @@
+//Arquivo Cpp Menu Principal
+
+#include <iostream>
+#include "stdafx.h"
+#include "constantes.h"
+#include "funcoes.h"
+#include "medico.h"
+#include "paciente.h"
+#include "receita.h"
+#include "convenio.h"
+#include "consulta.h"
+#include "medicacao.h"
+
+
+
+int main()
+{
+	int opcao;
+	posicaoMedico      = 0;
+	posicaoPaciente    = 0;
+	posicaoReceituario = 0;
+	posicaoConvenio    = 0;
+	posicaoConsulta    = 0;
+	posicaoMedicacao = 0;
+
+	do {
+		exibirMenuPrincipal();
+		cin >> opcao;
+		if (opcao <= 0 || opcao > 7) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			exibirMenuPrincipal();
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case MEDICO:
+			funcmedico();
+			break;
+
+		case PACIENTE:
+			funcPaciente();
+			break;
+
+		case RECEITA:
+			funcReceita();
+			break;
+
+		case CONVENIO:
+			funcConvenio();
+			break;
+
+		case CONSULTA:
+			funcConsultas();
+			break;
+
+		case MEDICACAO:
+			funcMedicacao();
+			break;
+
+		case SAIR:
+			opcao = sair();
+			
+		default:
+			break;
+		}
+
+	} while (opcao > 0 && opcao <= 7);
+
+	return 0;
+}
+
+
+// Bibliotecas
+#pragma once
+#include <iostream>
+#include <stdio.h>
+#include <tchar.h>
+#include <conio.h>
+#include <string>
+
+using namespace std;
+
+//constantes
+
+#pragma once
+#define MEDICO                    1
+#define PACIENTE                  2
+#define RECEITA                   3
+#define CONVENIO                  4
+#define CONSULTA                  5
+#define MEDICACAO                 6
+#define SAIR                      7
+
+#define CADASTRAR   1
+#define LISTAR      2
+#define ALTERAR     3
+#define EXCLUIR     4
+#define VOLTAR      5
+
+#define TAMANHO 6
+
+
+int posicaoMedico;
+
+typedef struct cmedico {
+	char codigo[30];
+	char nome[50];
+	char cpf[11];
+	char especialidade[50];
+};
+
+cmedico listaMedico[TAMANHO];
+
+int posicaoPaciente;
+
+typedef struct cpaciente {
+	char codigo[30];
+	char nome[50];
+	char cpf[11];
+	char convenio[50];
+	char sintomas[50];
+};
+
+cpaciente listaPaciente[TAMANHO];
+
+
+int posicaoReceituario;
+
+typedef struct creceituario {
+	char codigo[30];
+	char nomeRemedio[50];
+	char dosagem[11];
+	char intervalo[50];
+};
+
+creceituario listaReceituario[TAMANHO];
+
+
+int posicaoConvenio;
+typedef struct cconvenio {
+	char codigo[30];
+	char nome[50];
+	char plano[50];
+	char validade[50];
+};
+
+cconvenio listaConvenio[TAMANHO];
+
+
+int posicaoConsulta;
+
+typedef struct cconsulta {
+
+	char codPaciente[50];
+	char codMedico[50];
+	char data[50];
+};
+
+cconsulta listaConsulta[TAMANHO];
+
+int posicaoMedicacao;
+
+typedef struct cmedicacao {
+	char codPaciente[50];
+	char codRemedio[50];
+	char dias[50];
+};
+
+cmedicacao listaMedicacao[TAMANHO];
+
+//funcoes
+
+#pragma once
+void exibirMenuPrincipal() {
+
+	cout << "***************************************************************************" << endl;
+	cout << "Opcoes do Menu Principal" << endl;
+	cout << "***************************************************************************" << endl << endl;
+	cout << MEDICO << " - GERENCIAR MEDICO   " << endl;
+	cout << PACIENTE << " - GERENCIAR PACIENTES" << endl;
+	cout << RECEITA << " - GERENCIAR REMEDIOS " << endl;
+	cout << CONVENIO << " - GERENCIAR CONVENIOS" << endl;
+	cout << CONSULTA << " - CONSULTAS          " << endl;
+	cout << MEDICACAO << " - APLICAR MEDICACAO  " << endl;
+	cout << SAIR << " - SAIR               " << endl;
+	cout << "Entre com a opcao desejada:       " << endl;
+
+
+}
+
+void exibirOpcoes() {
+	cout << "***************************************************************************" << endl;
+	cout << "Opcoes do SubMenu Gerenciar " << endl;
+	cout << "***************************************************************************" << endl << endl;
+	cout << CADASTRAR << " - CADASTRAR " << endl;
+	cout << LISTAR << " - LISTAR    " << endl;
+	cout << ALTERAR << " - ALTERAR   " << endl;
+	cout << EXCLUIR << " - EXCLUIR   " << endl;
+	cout << VOLTAR << " - VOLTAR    " << endl;
+	cout << "Entre com a opcao desejada: " << endl;
+}
+
+
+
+
+int sair()
+{
+	int confirmacao;
+
+	cout << "Deseja realmente sair? " << endl;
+	cout << "Digite: 1-SIM ou 2- NAO " << endl;
+	cin >> confirmacao;
+
+	if (confirmacao == 1) {
+		return 88;
+	}
+	else {
+		return 7;
+	}
+}
+
+
+void gerarRelatorioConsulta(int posicaoConsulta) {
+	FILE* arquivo;
+	fopen_s (&arquivo, "RELATORIO_CONSULTA.TXT","w+");
+	for (int i = 0; i < posicaoConsulta; i++) {
+			fprintf(arquivo,"\r\MEDICO -> " );
+			fprintf(arquivo,listaConsulta[i].codMedico );
+			fprintf(arquivo,"\r\n" );
+			fprintf(arquivo,"PACIENTE -> " );
+			fprintf(arquivo,listaConsulta[i].codPaciente );
+			fprintf(arquivo,"\nDATA DA CONSULTA -> " );
+			fprintf(arquivo, listaConsulta[i].data );
+			fprintf(arquivo,"\r\n" );
+			//fprintf(arquivo,"Quantidade: " );
+			//char str[12];
+			//sprintf_s(str, "%d", listaVenda[i].qtd);
+			//fprintf(arquivo,str );
+			fprintf(arquivo,"\r\n" );
+			fprintf(arquivo,"\r\n" );		
+		}
+
+	fclose(arquivo);
+	system("cls");
+	cout << "\n Arquivo gerado com sucesso\n " << "Por favor acesse local \n\n ";
+	system("pause");
+}
+
+
+// MEDICO
+
+#pragma once
+int cadastrarMedico(cmedico vetor[TAMANHO], int posicao) {
+
+	cmedico prov;
+	cout << "Digite o CODIGO do Medico a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Medico  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o CPF : " << endl;
+	cin >> prov.cpf;
+	cout << "Digite a ESPECIALIDADE  : " << endl;
+	cin >> prov.especialidade;
+
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+void exibirMedicos(cmedico vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao : " << i << endl;
+	cout << "CODIGO        -> " << vetor[i].codigo        << endl;
+	cout << "NOME          -> " << vetor[i].nome          << endl;
+	cout << "CPF           -> " << vetor[i].cpf           << endl;
+	cout << "ESPECIALIDADE -> " << vetor[i].especialidade << endl;
+	cout << "----------------------------------------------------------" << endl;
+	exibirMedicos(vetor, i + 1, posicao);
+
+}
+
+void alterarMedico(cmedico vetor[TAMANHO], int posicao) {
+	cmedico prov;
+
+	cout << "Selecione a posicao do MEDICO a ser alterado:" << endl;
+	exibirMedicos(listaMedico, 0, posicaoMedico);
+	cin >> posicao;
+	cout << "Digite o CODIGO do Medico a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Medico  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o CPF : " << endl;
+	cin >> prov.cpf;
+	cout << "Digite a ESPECIALIDADE  : " << endl;
+	cin >> prov.especialidade;
+
+	vetor[posicao] = prov;
+
+}
+
+int excluirMedico(cmedico vetor[TAMANHO], int posicao) {
+	cmedico prov;
+
+
+
+	cout << "Selecione a posicao do MEDICO a ser excluido :" << endl;
+	exibirMedicos(listaMedico, 0, posicaoMedico);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaMedico[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+
+
+void funcmedico() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoMedico = cadastrarMedico(listaMedico, posicaoMedico);
+			break;
+
+		case LISTAR:
+			exibirMedicos(listaMedico, 0, posicaoMedico);
+			break;
+
+		case ALTERAR:
+			alterarMedico(listaMedico, posicaoMedico);
+			break;
+
+
+		case EXCLUIR:
+			posicaoMedico = excluirMedico(listaMedico, posicaoMedico);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
+//PACIENTE
+
+#pragma once
+int cadastrarPaciente(cpaciente vetor[TAMANHO], int posicao) {
+
+	cpaciente prov;
+	cout << "Digite o CODIGO do paciente a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Paciente  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o CPF : " << endl;
+	cin >> prov.cpf;
+	cout << "Digite os sintomas  : " << endl;
+	cin >> prov.sintomas;
+	cout << "Digite o CONVENIO do paciente :" << endl;
+	cin >> prov.convenio;
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+void exibirPacientes(cpaciente vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao : " << i << endl;
+	cout << "CODIGO        -> " << vetor[i].codigo << endl;
+	cout << "NOME          -> " << vetor[i].nome << endl;
+	cout << "CPF           -> " << vetor[i].cpf << endl;
+	cout << "CONVENIO      -> " << vetor[i].convenio << endl;
+	cout << "SINTOMAS      -> " << vetor[i].sintomas << endl;
+	cout << "----------------------------------------------------------" << endl;
+	exibirPacientes(vetor, i + 1, posicao);
+
+}
+
+void alterarPaciente(cpaciente vetor[TAMANHO], int posicao) {
+	cpaciente prov;
+
+	cout << "Selecione a posicao do PACIENTE a ser alterado:" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cin >> posicao;
+	cout << "Digite o CODIGO do paciente a ser alterado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Paciente  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o CPF : " << endl;
+	cin >> prov.cpf;
+	cout << "Digite os sintomas  : " << endl;
+	cin >> prov.sintomas;
+	cout << "Digite o CONVENIO do paciente :" << endl;
+	cin >> prov.convenio;
+	vetor[posicao] = prov;
+
+}
+
+int excluirPaciente(cpaciente vetor[TAMANHO], int posicao) {
+	cpaciente prov;
+
+
+
+	cout << "Selecione a posicao do PACIENTE a ser excluido :" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaPaciente[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+void funcPaciente() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoPaciente = cadastrarPaciente(listaPaciente, posicaoPaciente);
+
+			break;
+
+		case LISTAR:
+			exibirPacientes(listaPaciente, 0, posicaoPaciente);
+			break;
+
+		case ALTERAR:
+
+			alterarPaciente(listaPaciente, posicaoPaciente);
+
+			break;
+
+
+		case EXCLUIR:
+			posicaoPaciente = excluirPaciente(listaPaciente, posicaoPaciente);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
+
+// RECEITA
+
+#pragma once
+int cadastrarReceita(creceituario vetor[TAMANHO], int posicao) {
+
+	creceituario prov;
+	cout << "Digite o CODIGO do remedio a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Remedio  : " << endl;
+	cin >> prov.nomeRemedio;
+	cout << "Digite a DOSAGEM : " << endl;
+	cin >> prov.dosagem;
+	cout << "Digite o INTERVALO de horas  : " << endl;
+	cin >> prov.intervalo;
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+void exibirReceita(creceituario vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao : " << i << endl;
+	cout << "CODIGO        -> " << vetor[i].codigo << endl;
+	cout << "NOME          -> " << vetor[i].nomeRemedio << endl;
+	cout << "DOSAGEM       -> " << vetor[i].dosagem << endl;
+	cout << "INTERVALO     -> " << vetor[i].intervalo << endl;
+	cout << "----------------------------------------------------------" << endl;
+	exibirReceita(vetor, i + 1, posicao);
+
+}
+
+void alterarReceita(creceituario vetor[TAMANHO], int posicao) {
+	creceituario prov;
+
+	cout << "Selecione a posicao do REMEDIO a ser alterado:" << endl;
+	exibirReceita(listaReceituario, 0, posicaoReceituario);
+	cin >> posicao;
+	cout << "Digite o CODIGO do remedio a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Remedio  : " << endl;
+	cin >> prov.nomeRemedio;
+	cout << "Digite a DOSAGEM : " << endl;
+	cin >> prov.dosagem;
+	cout << "Digite o INTERVALO de horas  : " << endl;
+	cin >> prov.intervalo;
+	vetor[posicao] = prov;
+}
+
+int excluirReceita(creceituario vetor[TAMANHO], int posicao) {
+	creceituario prov;
+
+
+
+	cout << "Selecione a posicao do REMEDIO a ser excluido :" << endl;
+	exibirReceita(listaReceituario, 0, posicaoReceituario);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaReceituario[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+
+void funcReceita() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoReceituario = cadastrarReceita(listaReceituario, posicaoReceituario);
+			break;
+
+		case LISTAR:
+			exibirReceita(listaReceituario, 0, posicaoReceituario);
+			break;
+
+		case ALTERAR:
+			alterarReceita(listaReceituario, posicaoReceituario);
+			break;
+
+
+		case EXCLUIR:
+			posicaoReceituario = excluirReceita(listaReceituario, posicaoReceituario);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
+
+//CONVENIO
+
+#pragma once
+int cadastrarConvenio(cconvenio vetor[TAMANHO], int posicao) {
+
+	cconvenio prov;
+	cout << "Digite o CODIGO do CONVENIO a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Convenio  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o PLANO  : " << endl;
+	cin >> prov.plano;
+	cout << "Digite a VALIDADE :" << endl;
+	cin >> prov.validade;
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+void exibirConvenio(cconvenio vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao :        " << i << endl;
+	cout << "CODIGO        -> " << vetor[i].codigo << endl;
+	cout << "NOME          -> " << vetor[i].nome << endl;
+	cout << "PLANO         -> " << vetor[i].plano << endl;
+	cout << "VALIDADE      -> " << vetor[i].validade << endl;
+	cout << "----------------------------------------------------------" << endl;
+	exibirConvenio(vetor, i + 1, posicao);
+
+}
+
+void alterarConvenio(cconvenio vetor[TAMANHO], int posicao) {
+	cconvenio prov;
+
+	cout << "Selecione a posicao do CONVENIO a ser alterado:" << endl;
+	exibirConvenio(listaConvenio, 0, posicaoConvenio);
+	cin >> posicao;
+	cout << "Digite o CODIGO do CONVENIO a ser cadastrado : " << endl;
+	cin >> prov.codigo;
+	cout << "Digite o NOME do Convenio  : " << endl;
+	cin >> prov.nome;
+	cout << "Digite o PLANO  : " << endl;
+	cin >> prov.plano;
+	cout << "Digite a VALIDADE :" << endl;
+	cin >> prov.validade;
+	vetor[posicao] = prov;
+
+}
+
+int excluirConvenio(cconvenio vetor[TAMANHO], int posicao) {
+	cconvenio prov;
+
+
+
+	cout << "Selecione a posicao do CONVENIO a ser excluido :" << endl;
+	exibirConvenio(listaConvenio, 0, posicaoConvenio);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaConvenio[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+
+void funcConvenio() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoConvenio = cadastrarConvenio(listaConvenio, posicaoConvenio);
+
+			break;
+
+		case LISTAR:
+			exibirConvenio(listaConvenio, 0, posicaoConvenio);
+			break;
+
+		case ALTERAR:
+			alterarConvenio(listaConvenio, posicaoConvenio);
+			break;
+
+
+		case EXCLUIR:
+			posicaoConvenio = excluirConvenio(listaConvenio, posicaoConvenio);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
+
+//CONSULTA
+
+#pragma once
+int cadastrarConsulta(cconsulta vetor[TAMANHO], int posicao) {
+
+	cconsulta prov;
+
+	cout << "Selecione o MEDICO disponivel para consulta :" << endl;
+	exibirMedicos(listaMedico, 0, posicaoMedico);
+	cout << "Digite o NOME  do Medico : " << endl;
+	cin >> prov.codMedico;
+	cout << "Selecione o  PACIENTE :" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cout << "Digite o NOME do paciente: " << endl;
+	cin >> prov.codPaciente;
+	cout << "Digite a DATA e HORARIO da consulta : " << endl;
+	cin >> prov.data;
+
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+
+void exibirConsultas(cconsulta vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao : " << i << endl;
+
+	cout << "NOME DO MEDICO   -> " << vetor[i].codMedico   << endl;
+	cout << "NOME DO PACIENTE -> " << vetor[i].codPaciente << endl;
+	cout << "DATA CONSULTA    -> " << vetor[i].data        << endl;
+
+	cout << "----------------------------------------------------------" << endl;
+	exibirConsultas(vetor, i + 1, posicao);
+
+}
+
+void alterarConsulta(cconsulta vetor[TAMANHO], int posicao) {
+	cconsulta prov;
+
+	cout << "Selecione a posicao da CONSULTA a ser alterado:" << endl;
+	exibirConsultas(listaConsulta, 0, posicaoConsulta);
+	cin >> posicao;
+	cout << "Selecione o MEDICO disponivel para consulta :" << endl;
+	exibirMedicos(listaMedico, 0, posicaoMedico);
+	cout << "Digite o NOME  do Medico : " << endl;
+	cin >> prov.codMedico;
+	cout << "Selecione o  PACIENTE :" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cout << "Digite o NOME do paciente: " << endl;
+	cin >> prov.codPaciente;
+	cout << "Digite a DATA e HORARIO da consulta : " << endl;
+	cin >> prov.data;
+
+	vetor[posicao] = prov;
+}
+
+
+int excluirConsulta(cconsulta vetor[TAMANHO], int posicao) {
+	cconsulta prov;
+
+
+
+	cout << "Selecione a posicao da CONSULTA a ser excluido :" << endl;
+	exibirConsultas(listaConsulta, 0, posicaoConsulta);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaConsulta[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+void funcConsultas() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoConsulta = cadastrarConsulta(listaConsulta, posicaoConsulta);
+			break;
+
+		case LISTAR:
+			exibirConsultas(listaConsulta, 0, posicaoConsulta);
+			break;
+
+		case ALTERAR:
+			alterarConsulta(listaConsulta, posicaoConsulta);
+			break;
+
+
+		case EXCLUIR:
+			posicaoConsulta = excluirConsulta(listaConsulta, posicaoConsulta);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
+
+//MEDICACAO
+
+#pragma once
+int cadastrarMedicacao(cmedicacao vetor[TAMANHO], int posicao) {
+
+	int resposta;
+	cmedicacao prov;
+
+
+	cout << "Selecione o  PACIENTE :" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cout << "Digite o NOME do paciente: " << endl;
+	cin >> prov.codPaciente;
+	exibirReceita(listaReceituario, 0, posicaoReceituario);
+	cout << "Digite o Remedio da receita: " << endl;
+	cin >> prov.codRemedio;
+	cout << "Digite quantos DIAS dura o tratamento :" << endl;
+	cin >> prov.dias;
+	vetor[posicao] = prov;
+	posicao++;
+	return posicao;
+}
+
+void exibirMedicacao(cmedicacao vetor[TAMANHO], int i, int posicao) {
+	if (i == posicao) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+		return;
+	}
+	if (i == 0) {
+		cout << "---------------------------------------------------------------------------------" << endl;
+	}
+	cout << "----------------------------------------------------------" << endl;
+	cout << "Posicao : " << i << endl;
+
+
+	cout << "NOME DO PACIENTE   ->" << vetor[i].codPaciente << endl;
+	cout << "NOME DO REMEDIO    ->" << vetor[i].codRemedio << endl;
+	cout << "DIAS DE TRATAMENTO ->" << vetor[i].dias << endl;
+
+
+	cout << "----------------------------------------------------------" << endl;
+	exibirMedicacao(vetor, i + 1, posicao);
+
+}
+
+void alterarMedicacao(cmedicacao vetor[TAMANHO], int posicao) {
+	cmedicacao prov;
+
+	cout << "Selecione a posicao da MEDICACAO a ser alterado:" << endl;
+	exibirMedicacao(listaMedicacao, 0, posicaoMedicacao);
+	cin >> posicao;
+	cout << "Selecione o  PACIENTE :" << endl;
+	exibirPacientes(listaPaciente, 0, posicaoPaciente);
+	cout << "Digite o NOME do paciente: " << endl;
+	cin >> prov.codPaciente;
+	exibirReceita(listaReceituario, 0, posicaoReceituario);
+	cout << "Digite o Remedio da receita: " << endl;
+	cin >> prov.codRemedio;
+	cout << "Digite quantos DIAS dura o tratamento :" << endl;
+	cin >> prov.dias;
+
+	vetor[posicao] = prov;
+
+}
+
+int excluirMedicacao(cmedicacao vetor[TAMANHO], int posicao) {
+	cmedicacao prov;
+
+
+
+	cout << "Selecione a posicao da MEDICACAO a ser excluido :" << endl;
+	exibirMedicacao(listaMedicacao, 0, posicaoMedicacao);
+	cin >> posicao;
+
+	while (posicao != posicaoMedico) {
+		vetor[posicao] = listaMedicacao[posicao + 1];
+		posicao++;
+
+	}
+	return posicao - 1;
+}
+
+void funcMedicacao() {
+	int opcao;
+
+	do {
+		exibirOpcoes();
+		cin >> opcao;
+		if (opcao < 0 || opcao > 5) {
+			cout << "Opcao Invalida, redigite! " << endl;
+			cin >> opcao;
+		}
+
+		switch (opcao) {
+		case CADASTRAR:
+			posicaoMedicacao = cadastrarMedicacao(listaMedicacao, posicaoMedicacao);
+			break;
+
+		case LISTAR:
+			exibirMedicacao(listaMedicacao, 0, posicaoMedicacao);
+			break;
+
+		case ALTERAR:
+			alterarMedicacao(listaMedicacao, posicaoMedicacao);
+			break;
+
+
+		case EXCLUIR:
+			posicaoMedicacao = excluirMedicacao(listaMedicacao, posicaoMedicacao);
+			break;
+
+		case VOLTAR:
+			opcao = sair();
+		default:
+			break;
+
+
+		}
+
+
+	} while (opcao > 0 && opcao <= 7);
+}
+
